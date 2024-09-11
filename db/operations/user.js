@@ -42,7 +42,7 @@ const addProductOnCard = async(knex, userId, productId, quantity)=>{
     try {
         const result = await knex("usersCard").insert({
             userId,
-            productId: JSON.stringify(productId),
+            productId,
             quantity
         })
         return result
@@ -54,12 +54,8 @@ const addProductOnCard = async(knex, userId, productId, quantity)=>{
 const getProductsByUserId = async(knex, userId)=>{
     try {
         const result = await knex("usersCard")
-       .where({userId})
-       .select("productId", "quantity")
-    //    .map(async (item) => {
-    //         const product = await knex("products").whereIn("id", JSON.parse(item.productId)).first()
-    //         return {...item, product}
-    //     })
+            .where({userId})
+            .select("productId", "quantity")
         return result
     } catch (error) {
         console.error(error)
@@ -68,11 +64,16 @@ const getProductsByUserId = async(knex, userId)=>{
 
 const joinTable = async(knex, userId)=>{
     try {
-        knex.select("*").from("products").join("usersCard")
+        const result = await knex('products')
+            .join("usersCard", "products.id", "=", "usersCard.productId")
+            .select("*")
+            .where("usersCard.userId", "=", userId)
+        // console.log(result);
+        return result
+        
     } catch (error) {
         console.log(error);
-        
     }
 }
 
-export {registerUser, loginUser, addProductOnCard, getProductsByUserId}
+export {registerUser, loginUser, addProductOnCard, getProductsByUserId, joinTable}

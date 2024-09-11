@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import {addProduct, getAllProduct} from "../db/operations/product.js";
-import { registerUser, loginUser, addProductOnCard, getProductsByUserId } from "../db/operations/user.js";
+import { registerUser, loginUser, addProductOnCard, getProductsByUserId, joinTable } from "../db/operations/user.js";
 
 
 import knex from "../db/db.js";
@@ -68,7 +68,7 @@ app.post("/api/user/login", async (req, res) => {
           res.cookie("token", token,{
               httpOnly: false,
               secure:true,
-              expiresIn: '1h',
+              expiresIn: '1Days',
               sameSite: 'none',
           })
       }      
@@ -113,6 +113,23 @@ app.get("/api/user/getProductsByUserId", async (req, res) => {
     res.json({ message: "Products fetched successfully", data: products });
   } catch (error) {
     res.status(500).json({ message: error.message });
+    console.error(error);
+  }
+})
+
+app.get("/api/table/joinTable", async (req, res) => {
+  try {
+    const token = req.cookies.token
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+    const data = jwt.verify(token, process.env.JWT_SECRET);
+    if (!data) return res.status(401).json({ message: "Unauthorized" });
+    const userId = data.id
+    const result = await joinTable(knex, userId);
+    res.json({ message: "Table joined successfully", data: result });
+  } catch (error) {
+    res.status(500).json({ message: error.message,});
     console.error(error);
   }
  
