@@ -3,13 +3,14 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
-import { addProduct, getAllProduct } from "../db/operations/product.js";
+import { addProduct, getAllProduct, deleteProductById } from "../db/operations/product.js";
 import {
   registerUser,
   loginUser,
   addProductOnCard,
   getProductsByUserId,
   joinTable,
+  getAllUsers
 } from "../db/operations/user.js";
 import Stripe from "stripe";
 
@@ -166,6 +167,31 @@ app.post("/api/order", async (req, res) => {
     console.log(error.message);
   }
 });
+
+app.get("/api/users", async (req, res) => {
+  try {
+    const users = await getAllUsers(knex);
+    res.json({ message: "Users fetched successfully", data: users });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.error(error);
+  }
+})
+
+app.delete("/api/product/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const deletedProduct = await deleteProductById(knex, productId);
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json({ message: "Product deleted successfully", data: deletedProduct });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.error(error);
+  }
+})
+
 
 app.listen(port, () => {
   console.log(`app listining on port http://localhost:${port}`);

@@ -68,7 +68,6 @@ const joinTable = async(knex, userId)=>{
             .join("usersCard", "products.id", "=", "usersCard.productId")
             .select("*")
             .where("usersCard.userId", "=", userId)
-        // console.log(result);
         return result
         
     } catch (error) {
@@ -76,4 +75,13 @@ const joinTable = async(knex, userId)=>{
     }
 }
 
-export {registerUser, loginUser, addProductOnCard, getProductsByUserId, joinTable}
+const getAllUsers = async(knex, userId)=>{
+    try {
+        const result = await knex("users").select("*")
+        return result
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+export {registerUser, loginUser, addProductOnCard, getProductsByUserId, joinTable, getAllUsers}

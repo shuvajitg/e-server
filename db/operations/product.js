@@ -39,4 +39,13 @@ const getAllProduct = async (knex, productData) => {
   }
 }
 
-export {addProduct, getAllProduct};
+const deleteProductById = async (knex, productId) => {
+  try {
+    const result = await knex("products").where({ id: productId }).del();
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export {addProduct, getAllProduct,deleteProductById};
